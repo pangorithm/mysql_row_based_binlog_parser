@@ -41,12 +41,20 @@ fn main() -> io::Result<()> {
 
         match cmd {
             "INSERT" => {
-                query = query + "\nVALUES\n";
-                let slice: Vec<String> = query_vec[2..query_vec.len()]
-                    .iter()
-                    .map(|str| str.replace("@=", ""))
-                    .collect();
-                query = query + "(\n" + &slice.join(",\n") + "\n)";
+                let mut column_vec = vec![];
+                let mut value_vec = vec![];
+
+                query_vec[2..query_vec.len()].iter().for_each(|str| {
+                    let tmp: Vec<&str> = str.split("=").collect();
+                    column_vec.push(tmp[0]);
+                    value_vec.push(tmp[1]);
+                });
+                query = query
+                    + "(\n"
+                    + &column_vec.join(",\n")
+                    + "\n) VALUES (\n"
+                    + &value_vec.join(",\n")
+                    + "\n)";
             }
             "UPDATE" => {
                 let mut iter = query_vec.iter();
